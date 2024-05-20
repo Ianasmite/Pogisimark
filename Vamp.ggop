@@ -285,6 +285,12 @@ function hitsound()
 end
 
 Tool.Activated:Connect(function()
+    if isOrbiting then
+        stopOrbit()
+    else
+        startOrbit()
+    end
+end)
 if getgenv().Settings.FearLas.Enabled or getgenv().Settings.FearLas.Camera.Enabled then
             if enabled == true then
                 enabled = false
@@ -1121,7 +1127,99 @@ MaterialOptions:Add("Brick")
 
 local AntiFolder = Tib:AddFolder("Anti Lock")
 		AntiFolder:AddLabel("WILL SOON WILL BE ADDING TO VAMP.GG")
+getgenv().Sky = false -- Default state for the anti-lock feature is off
 
+-- Create Switch for Anti-Lock
+local antiLockSwitch = AntiFolder:AddSwitch("Enable Anti-Lock", function(state)
+    getgenv().Sky = state
+end)
+antiLockSwitch:Set(getgenv().Sky)
+
+-- Anti-Lock functionality
+game:GetService("RunService").Heartbeat:Connect(function()
+    if getgenv().Sky then
+        local vel = game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity
+        game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 90, 0)
+        game:GetService("RunService").RenderStepped:Wait()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = vel
+    end 
+end)
+
+AntiFolder:AddButton("View Aim"), function()
+local Settings = {
+    Color = Color3.fromRGB(240, 187, 29), -- Color of the line
+    Thickness = 1, -- Thickness of the line (Overruled by AutoThickness if activated)
+    Transparency = 1, -- 1 Visible - 0 Not Visible
+    AutoThickness = true, -- Makes Thickness above futile, scales according to distance, good for less encumbered screen
+    Length = 15, -- In studs of the line
+    Smoothness = 0.2 -- 0.01 - Less Smooth(Faster), 1 - Smoother (Slower)
+}
+
+local toggle = true -- use this variable if you wanna integrate into a GUI
+
+local player = game:GetService("Players").LocalPlayer
+local camera = game:GetService("Workspace").CurrentCamera
+
+local function ESP(plr) --//Main function handling specific plr loop esp for line etc
+    local line = Drawing.new("Line") --// Parse and Set the line for tracer
+    line.Visible = false
+    line.From = Vector2.new(0, 0)
+    line.To = Vector2.new(0, 0)
+    line.Color = Settings.Color
+    line.Thickness = Settings.Thickness
+    line.Transparency = Settings.Transparency
+
+    local function Updater() --// Function to update the ESP therefore, line destinations etc every /render/
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function() -- Putting function in a connection var in order to disconnect if needed, to save performance
+            if toggle and plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil and plr.Character:FindFirstChild("HumanoidRootPart") ~= nil and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("Head") ~= nil then
+                local headpos, OnScreen = camera:WorldToViewportPoint(plr.Character.Head.Position)
+                if OnScreen then -- checks if player is on screen or not
+                    local offsetCFrame = CFrame.new(0, 0, -Settings.Length)
+                    local check = false
+                    line.From = Vector2.new(headpos.X, headpos.Y)
+                    if Settings.AutoThickness then
+                        local distance = (player.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude --//AutoThickness
+                        local value = math.clamp(1/distance*100, 0.1, 3) --0.1 is min thickness, 4 is max
+                        line.Thickness = value
+                    end
+                    repeat
+                        local dir = plr.Character.Head.CFrame:ToWorldSpace(offsetCFrame)
+                        offsetCFrame = offsetCFrame * CFrame.new(0, 0, Settings.Smoothness)
+                        local dirpos, vis = camera:WorldToViewportPoint(Vector3.new(dir.X, dir.Y, dir.Z))
+                        if vis then
+                            check = true
+                            line.To = Vector2.new(dirpos.X, dirpos.Y)
+                            line.Visible = true
+                            offsetCFrame = CFrame.new(0, 0, -Settings.Length)
+                        end
+                    until check == true
+                else 
+                    line.Visible = false
+                end
+            else 
+                line.Visible = false
+                if game.Players:FindFirstChild(plr.Name) == nil then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+    coroutine.wrap(Updater)()
+end
+
+for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+    if v.Name ~= player.Name then
+        coroutine.wrap(ESP)(v)
+    end
+end
+
+game.Players.PlayerAdded:Connect(function(newplr)
+    if newplr.Name ~= player.Name then
+        coroutine.wrap(ESP)(newplr)
+    end
+end)
+end)
 
 local ActualMiscs = Tib:AddFolder("Others")
 ActualMiscs:AddLabel("Miscellaneous")
@@ -1227,7 +1325,7 @@ ActualMiscs:AddTextBox("Height", tostring(orbitHeight), function(value)
     orbitHeight = tonumber(value) or orbitHeight
 end)
 
-local ESP = Tib:AddFolder("ESP / VISUAL")
+local niga = Tib:AddFolder("ESP / VISUAL")
 
 local Skeletons = {}
 
@@ -1247,7 +1345,7 @@ local function removeSkeletons()
 end
 
 -- Create a toggle to enable/disable skeleton visualization
-local skeletonToggle = ESP:AddToggle("Enable Skeleton ESP", false, function(enabled)
+local skele = niga:AddSwitch("Enable Skeleton ESP", false, function(enabled)
     if enabled then
         createSkeletons() -- Add skeletons when toggle is enabled
     else
@@ -1257,7 +1355,7 @@ end)
 
 -- Listen for new players and add their skeletons
 game.Players.PlayerAdded:Connect(function(Player)
-    if skeletonToggle:GetState() then
+    if skele:GetState() then
         table.insert(Skeletons, Library:NewSkeleton(Player, true))
     end
 end)
