@@ -1,5 +1,5 @@
 local player = {
-   "Man_idk2314"
+   "Mark"
 }
 
 if game.Players.LocalPlayer.Name == unpack(player) then
