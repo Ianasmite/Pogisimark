@@ -839,6 +839,85 @@ end))
         updateKey('namecallInstance')
     end
 do
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Blissful4992/ESPs/main/UniversalSkeleton.lua"))()
+
+
+local orbitToggleKey = Enum.KeyCode.V
+local orbitDistance = 5
+local orbitSpeed = 5
+local orbitHeight = 5
+local targetPlayer = nil
+local isOrbiting = false
+local isToggleEnabled = false
+
+local function getNearestPlayer()
+    local nearestDistance = math.huge
+    local nearestPlayer = nil
+
+    local localCharacter = game.Players.LocalPlayer.Character
+    if localCharacter then
+        local localRootPart = localCharacter:FindFirstChild("HumanoidRootPart")
+        if localRootPart then
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer then
+                    local character = player.Character
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        local distance = (character.HumanoidRootPart.Position - localRootPart.Position).Magnitude
+                        if distance < nearestDistance then
+                            nearestDistance = distance
+                            nearestPlayer = player
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return nearestPlayer
+end
+
+local function startOrbit()
+    targetPlayer = getNearestPlayer()
+    isOrbiting = true
+end
+
+local function stopOrbit()
+    targetPlayer = nil
+    isOrbiting = false
+end
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == orbitToggleKey then
+        if isToggleEnabled then
+            if isOrbiting then
+                stopOrbit()
+            else
+                startOrbit()
+            end
+        end
+    end
+end)
+
+game:GetService("RunService").Heartbeat:Connect(function(deltaTime)
+    if isOrbiting and targetPlayer then
+        local character = game.Players.LocalPlayer.Character
+        local targetCharacter = targetPlayer.Character
+
+        if character and character:FindFirstChild("HumanoidRootPart") and targetCharacter then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            local targetRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+
+            if humanoidRootPart and targetRootPart then
+                local targetPosition = targetRootPart.Position + Vector3.new(0, orbitHeight, 0)
+                local orbitPosition = targetPosition + Vector3.new(math.cos(tick() * orbitSpeed) * orbitDistance, 0, math.sin(tick() * orbitSpeed) * orbitDistance)
+
+                humanoidRootPart.CFrame = CFrame.new(orbitPosition, targetPosition)
+            end
+        end
+    end
+end)
+
 	local Window = library:AddWindow("Vamp.gg V1.5", {
 		main_color = Color3.fromRGB(255,165,0),
 		min_size = Vector2.new(500, 600),
@@ -846,11 +925,11 @@ do
 		can_resize = true,
 	})
 
-	local Tab = Window:AddTab("Camera Lock")
+	local Tab = Window:AddTab("Camlock")
 	local WsgCuh = Window:AddTab("Silent Aim")
-	local Teb = Window:AddTab("Target Lock")
+	local Teb = Window:AddTab("Dot Lock")
 	local Tib = Window:AddTab("Miscs")
-	local Tub = Window:AddTab("Debugging")
+	local Tub = Window:AddTab("SOON!?")
 
 	do -- Elements
 	WsgCuh:AddLabel("Configuration")
@@ -1097,7 +1176,7 @@ ScreenGui.ResetOnSpawn = false -- Keep the GUI after respawn
 ScreenGui.Parent = PlayerGui
 
 local TextButton = Instance.new("TextButton")
-TextButton.Name = "Vamp😈"
+TextButton.Name = "VampðŸ˜ˆ"
 TextButton.Parent = ScreenGui
 TextButton.BackgroundColor3 = Color3.fromRGB(255,165,0)
 TextButton.BackgroundTransparency = 0.5
@@ -1124,6 +1203,68 @@ end)
 if getgenv().NoDelay == true then
 game:GetService("CorePackages").Packages:Destroy()
 end
+
+local orbitToggle = ActualMiscs:AddSwitch("Enable Orbit", function(enabled)
+    isToggleEnabled = enabled
+    if enabled then
+        startOrbit()
+    else
+        stopOrbit()
+    end
+end)
+
+orbitToggle:Set(false)
+
+ActualMiscs:AddTextBox("Speed", tostring(orbitSpeed), function(value)
+    orbitSpeed = tonumber(value) or orbitSpeed
+end)
+
+ActualMiscs:AddTextBox("Distance", tostring(orbitDistance), function(value)
+    orbitDistance = tonumber(value) or orbitDistance
+end)
+
+ActualMiscs:AddTextBox("Height", tostring(orbitHeight), function(value)
+    orbitHeight = tonumber(value) or orbitHeight
+end)
+
+local ESP = Tib:AddFolder("ESP / VISUAL")
+
+local Skeletons = {}
+
+-- Function to create skeletons for all existing players
+local function createSkeletons()
+    for _, Player in ipairs(game.Players:GetPlayers()) do
+        table.insert(Skeletons, Library:NewSkeleton(Player, true))
+    end
+end
+
+-- Function to remove all existing skeletons
+local function removeSkeletons()
+    for _, skeleton in ipairs(Skeletons) do
+        skeleton:Remove()
+    end
+    Skeletons = {} -- Clear the table
+end
+
+-- Create a toggle to enable/disable skeleton visualization
+local skeletonToggle = ESP:AddToggle("Enable Skeleton ESP", false, function(enabled)
+    if enabled then
+        createSkeletons() -- Add skeletons when toggle is enabled
+    else
+        removeSkeletons() -- Remove skeletons when toggle is disabled
+    end
+end)
+
+-- Listen for new players and add their skeletons
+game.Players.PlayerAdded:Connect(function(Player)
+    if skeletonToggle:GetState() then
+        table.insert(Skeletons, Library:NewSkeleton(Player, true))
+    end
+end)
+
+-- Create skeletons for existing players when script is executed
+createSkeletons()
+
 local BypassFolder = Tib:AddFolder("Anti Cheat Bypass")
 BypassFolder:AddLabel("Anti Cheats")
 local Bypass1 = BypassFolder:AddSwitch("Hood Custom Camlock Bypass", function(bool)
