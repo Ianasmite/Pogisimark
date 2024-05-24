@@ -1,24 +1,31 @@
-local player = {
-   "Man_idk2314"
+-- List of whitelisted player names
+local whitelist = {
+["user"] = true,
+["Pogiko2@"] = true,
 }
 
-if game.Players.LocalPlayer.Name == unpack(player) then
-local starterGui = game:GetService("StarterGui")
+-- Function to check if a player is whitelisted
+local function isWhitelisted(player)
+    return whitelist[player.Name] == true
+end
 
-starterGui:SetCore("SendNotification",  {
-      Title = "Whitelist System",
-      Text = "Whitelisted!",
-      Duration = 5
-})
+-- Function to handle player joining
+game.Players.PlayerAdded:Connect(function(player)
+    if not isWhitelisted(player) then
+        player:Kick("You are not whitelisted please buy the script!")
+    else
+        print(player.Name .. " has joined the game.")
+        -- Activate loadstring for whitelisted players
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.ggop", true))()
+    end
+end)
 
-else
-    local starterGui = game:GetService("StarterGui")
-
-starterGui:SetCore("SendNotification",  {
-      Title = "Whitelist System",
-      Text = "Man_idk2314 u blacklist for: spamming nigger slave   time:99999 to whitelist",
-      Duration = 5
-})
+-- Check existing players
+for _, player in ipairs(game.Players:GetPlayers()) do
+    if not isWhitelisted(player) then
+        player:Kick("You are not whitelisted please buy the script!")
+    else
+        -- Activate loadstring for  players
+    loadstring(game:HttpGet("https://pastebin.com/JJ36AC2f "))()
+    end
 end
