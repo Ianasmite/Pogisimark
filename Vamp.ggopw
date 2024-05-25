@@ -9,7 +9,7 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 170, 0, 70)
 mainFrame.Position = UDim2.new(1, -200, 0, 0) -- Original position
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
 mainFrame.Parent = screenGui
 
 -- Add a UIStroke to the main frame
@@ -22,7 +22,7 @@ mainFrameStroke.Parent = mainFrame
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(0, 170, 0, 30)
 topBar.Position = UDim2.new(0, 0, 0, 0)
-topBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+topBar.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
 topBar.Parent = mainFrame
 
 -- Add the title to the top bar
@@ -44,7 +44,7 @@ buttonFrame.Parent = mainFrame
 
 -- Add a UIStroke to the button background frame
 local buttonFrameStroke = Instance.new("UIStroke")
-buttonFrameStroke.Color = Color3.fromRGB(255, 0, 0)
+buttonFrameStroke.Color = Color3.fromRGB(0, 0, 255)
 buttonFrameStroke.Thickness = 2
 buttonFrameStroke.Parent = buttonFrame
 
