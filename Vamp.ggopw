@@ -67,9 +67,9 @@ local userInputService = game:GetService("UserInputService")
 
 local aimSpeed = 0.1 -- Adjust this value for responsiveness
 local isAimAssistEnabled = false
-local predictionFactor = 5.4 -- Adjust this value for prediction accuracy
+local predictionFactor = 10 -- Adjust this value for prediction accuracy
 local currentTarget = nil
-local smoothingFactor = 0.02 -- Adjust this value for smoother camera movement
+local smoothingFactor = 0.005 -- Adjust this value for smoother camera movement
 
 local function predictTargetPosition(target, deltaTime)
     local targetPosition = target.UpperTorso.Position
