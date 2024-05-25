@@ -1,58 +1,3 @@
--- Ensure the required directories exist
-if not isfolder("vamp") then
-    makefolder("vamp")
-end
-
-if not isfolder("vamp/config") then
-    makefolder("vamp/config")
-end
-
--- Function to load config settings from any .cfg file in the folder
-function loadConfigFromFolder(folderPath)
-    local files = listfiles(folderPath)
-    for _, file in ipairs(files) do
-        if isfile(file) and file:sub(-4) == ".cfg" then
-            local configFile = readfile(file)
-            if configFile then
-                local configSettings = {}
-                for line in configFile:gmatch("[^\r\n]+") do
-                    local key, value = line:match("(%a+)%s*=%s*(.+)")
-                    if key and value then
-                        configSettings[key] = tonumber(value) or value
-                    end
-                end
-                -- Update aim assist variables with loaded settings
-                if configSettings.aimSpeed then
-                    aimSpeed = configSettings.aimSpeed
-                end
-                if configSettings.isAimAssistEnabled ~= nil then
-                    isAimAssistEnabled = configSettings.isAimAssistEnabled == "true"
-                end
-                if configSettings.predictionFactor then
-                    predictionFactor = configSettings.predictionFactor
-                end
-                if configSettings.smoothingFactor then
-                    smoothingFactor = configSettings.smoothingFactor
-                end
-                if configSettings.currentTarget then
-                    currentTarget = configSettings.currentTarget
-                end
-                print("Config loaded successfully from: " .. file)
-                return
-            else
-                warn("Failed to load config file: " .. file)
-            end
-        end
-    end
-    warn("No .cfg files found in folder: " .. folderPath)
-end
-
--- Load config when GUI is loaded
-game.Players.LocalPlayer.PlayerGui.ChildAdded:Connect(function(child)
-    if child.Name == "CustomGUI" then
-        loadConfigFromFolder("vamp/config")
-    end
-end)
 
 -- Create the ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -63,14 +8,9 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 -- Set up the main frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 170, 0, 70)
-mainFrame.Position = UDim2.new(1, -220, 0, 0)
+mainFrame.Position = UDim2.new(1, -200, 0, 0) -- Original position
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.Parent = screenGui
-
--- Add a corner radius to the main frame
-local mainFrameCorner = Instance.new("UICorner")
-mainFrameCorner.CornerRadius = UDim.new(0, 10)
-mainFrameCorner.Parent = mainFrame
 
 -- Add a UIStroke to the main frame
 local mainFrameStroke = Instance.new("UIStroke")
@@ -80,39 +20,29 @@ mainFrameStroke.Parent = mainFrame
 
 -- Set up the top bar frame
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(0, 200, 0, 30)
+topBar.Size = UDim2.new(0, 170, 0, 30)
 topBar.Position = UDim2.new(0, 0, 0, 0)
 topBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 topBar.Parent = mainFrame
-
--- Add a corner radius to the top bar
-local topBarCorner = Instance.new("UICorner")
-topBarCorner.CornerRadius = UDim.new(0, 10)
-topBarCorner.Parent = topBar
 
 -- Add the title to the top bar
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 1, 0)
 title.Position = UDim2.new(0, 0, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "Vamp.gg 😈"
+title.Text = "Vamp.gg😈"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextScaled = true
 title.Font = Enum.Font.SourceSans
 title.Parent = topBar
 
--- Add a UIStroke to the button background frame
 local buttonFrame = Instance.new("Frame")
-buttonFrame.Size = UDim2.new(0, 200, 0, 40)
+buttonFrame.Size = UDim2.new(0, 170, 0, 40)
 buttonFrame.Position = UDim2.new(0, 0, 0, 30)
 buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 buttonFrame.Parent = mainFrame
 
--- Add a corner radius to the button frame
-local buttonFrameCorner = Instance.new("UICorner")
-buttonFrameCorner.CornerRadius = UDim.new(0, 10)
-buttonFrameCorner.Parent = buttonFrame
-
+-- Add a UIStroke to the button background frame
 local buttonFrameStroke = Instance.new("UIStroke")
 buttonFrameStroke.Color = Color3.fromRGB(255, 0, 0)
 buttonFrameStroke.Thickness = 2
@@ -123,44 +53,40 @@ local button = Instance.new("TextButton")
 button.Size = UDim2.new(1, 0, 1, 0)
 button.Position = UDim2.new(0, 0, 0, 0)
 button.BackgroundTransparency = 1
-button.Text = "Start"
+button.Text = "START"
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.TextScaled = true
 button.Font = Enum.Font.SourceSansBold
 button.Parent = buttonFrame
 
--- Add a corner radius to the button
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, 10)
-buttonCorner.Parent = button
-
--- Local variables (default values if not set by config)
-local aimSpeed = 0.1
-local isAimAssistEnabled = false
-local predictionFactor = 5.4
-local currentTarget = nil
-local smoothingFactor = 0.02
-
+-- Local variables
 local player = game.Players.LocalPlayer
 local camera = game.Workspace.CurrentCamera
 local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
 
--- Function to predict the target position
+local aimSpeed = 0.1 -- Adjust this value for responsiveness
+local isAimAssistEnabled = false
+local predictionFactor = 5.4 -- Adjust this value for prediction accuracy
+local currentTarget = nil
+local smoothingFactor = 0.02 -- Adjust this value for smoother camera movement
+
 local function predictTargetPosition(target, deltaTime)
     local targetPosition = target.UpperTorso.Position
-    local targetVelocity = target:FindFirstChild("HumanoidRootPart") and target.HumanoidRootPart.Velocity or Vector3.new()
+    local targetVelocity = target:FindFirstChild("Humanoid") and target.HumanoidRootPart.Velocity or Vector3.new()
 
     local predictedPosition = targetPosition + targetVelocity * predictionFactor * deltaTime
     return predictedPosition
 end
 
--- Function to aim at the target
 local function aimAtTarget()
     if currentTarget and currentTarget.Parent then
         local predictedPosition = predictTargetPosition(currentTarget, runService.RenderStepped:Wait())
         local lookVector = (predictedPosition - camera.CFrame.Position).Unit
 
+        -- Smooth the camera movement
         local smoothedLookVector = (1 - smoothingFactor) * lookVector + smoothingFactor * (camera.CFrame.LookVector)
+
         local newCFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + aimSpeed * smoothedLookVector)
         camera.CFrame = newCFrame
     else
@@ -169,7 +95,6 @@ local function aimAtTarget()
     end
 end
 
--- Function to find the closest player to the center
 local function findClosestPlayerToCenter()
     local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
     local closestPlayer = nil
@@ -193,14 +118,13 @@ local function findClosestPlayerToCenter()
     return closestPlayer
 end
 
--- Button click handler
 local function onButtonClick()
     isAimAssistEnabled = not isAimAssistEnabled
     if isAimAssistEnabled then
-        button.Text = "🔫"
+        button.Text = "On"
         currentTarget = findClosestPlayerToCenter()
     else
-        button.Text = "🙅"
+        button.Text = "Off"
         currentTarget = nil
     end
     print("Aim Assist Toggled:", isAimAssistEnabled)
@@ -208,7 +132,6 @@ end
 
 button.MouseButton1Click:Connect(onButtonClick)
 
--- Handle character death
 local function onCharacterAdded(character)
     character:WaitForChild("Humanoid").Died:Connect(function()
         if currentTarget == character then
@@ -219,7 +142,6 @@ end
 
 player.CharacterAdded:Connect(onCharacterAdded)
 
--- Run service render step
 runService.RenderStepped:Connect(function(deltaTime)
     if isAimAssistEnabled then
         aimAtTarget()
