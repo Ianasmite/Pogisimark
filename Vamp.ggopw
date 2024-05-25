@@ -14,7 +14,7 @@ mainFrame.Parent = screenGui
 
 -- Add a UIStroke to the main frame
 local mainFrameStroke = Instance.new("UIStroke")
-mainFrameStroke.Color = Color3.fromRGB(255, 0, 0)
+mainFrameStroke.Color = Color3.fromRGB(0, 0, 255)
 mainFrameStroke.Thickness = 2
 mainFrameStroke.Parent = mainFrame
 
