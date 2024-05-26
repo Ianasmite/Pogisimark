@@ -4,7 +4,7 @@ local whitelist = {
 ["1youlookgoodtoday"]= true,
 ["TheKings_Tower"]= true,
 ["SaitamaDgold"]= true,
-["example"]= true,
+["mustafa98910"]= true,
 }
 
 -- Function to check if a player is whitelisted
