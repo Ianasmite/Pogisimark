@@ -3,7 +3,7 @@ local whitelist = {
 ["Anthonyz_ohhhhh"] = true,
 ["1youlookgoodtoday"]= true,
 ["TheKings_Tower"]= true,
-["nono"]= true,
+["SaitamaDgold"]= true,
 ["example"]= true,
 }
 
@@ -28,6 +28,6 @@ for _, player in ipairs(game.Players:GetPlayers()) do
         player:Kick("You are not whitelisted please buy the script!")
     else
         -- Activate loadstring for  players
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.ggopw"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/A"))()
     end
 end
