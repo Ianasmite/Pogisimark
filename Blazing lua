@@ -1,11 +1,11 @@
-getgenv().Prediction = 0.1259910
+getgenv().Prediction = 0.1324123311111111
 getgenv().Smoothness = 0.9
 getgenv().AimPart = "HumanoidRootPart"
 getgenv().OldAimpart = "HumanoidRootPart"
 getgenv().ShakeValue = 1
 getgenv().AutoPred = true
 
----// NOT MADE BY ME BUT I STILL CREDS TO LION //--
+---// Fucking lyrical made this bitch ass nigga //--
 
 local Tool = Instance.new("Tool")
 Tool.RequiresHandle = false
