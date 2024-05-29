@@ -1,149 +1,199 @@
-
--- Create the ScreenGui
+-- Creating the ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.ResetOnSpawn = false
-screenGui.Name = "CustomGUI"
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Name = "Vamp"
+screenGui.Parent = game.CoreGui
 
--- Set up the main frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 170, 0, 70)
-mainFrame.Position = UDim2.new(1, -200, 0, 0) -- Original position
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-mainFrame.Parent = screenGui
+-- Creating the draggable button
+local draggableButton = Instance.new("TextButton")
+draggableButton.Size = UDim2.new(0, 50, 0, 50)  -- Size of the draggable button
+draggableButton.Position = UDim2.new(1, -70, 0, 20)  -- Positioning it at the top right corner
+draggableButton.BackgroundTransparency = 0.5  -- Transparent background at 50% opacity
+draggableButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+draggableButton.BorderSizePixel = 2  -- Adding black border
+draggableButton.BorderColor3 = Color3.fromRGB(0, 0, 0)  -- Black border color
+draggableButton.Text = "V"
+draggableButton.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red text color
+draggableButton.Font = Enum.Font.GrenzeGotisch  -- GrenzeGotisch font
+draggableButton.TextSize = 24
+draggableButton.Parent = screenGui
 
--- Add a UIStroke to the main frame
-local mainFrameStroke = Instance.new("UIStroke")
-mainFrameStroke.Color = Color3.fromRGB(0, 0, 255)
-mainFrameStroke.Thickness = 2
-mainFrameStroke.Parent = mainFrame
+-- Adding UICorner to draggableButton
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 15)
+uiCorner.Parent = draggableButton
 
--- Set up the top bar frame
-local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(0, 170, 0, 30)
-topBar.Position = UDim2.new(0, 0, 0, 0)
-topBar.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-topBar.Parent = mainFrame
+-- Create menu frame
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 300, 0, 300)
+menuFrame.Position = UDim2.new(1, -300, 0, 20)
+menuFrame.BackgroundTransparency = 0.8
+menuFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+menuFrame.BorderSizePixel = 2  -- Adding black border
+menuFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)  -- Red border color
+menuFrame.Visible = false
+menuFrame.Parent = screenGui  -- Parent to screenGui instead of draggableButton
 
--- Add the title to the top bar
+-- Adding UICorner to menuFrame
+local menuUICorner = Instance.new("UICorner")
+menuUICorner.CornerRadius = UDim.new(0, 15)
+menuUICorner.Parent = menuFrame
+
+-- Creating the ScrollingFrame
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, -20, 1, -50)
+scrollingFrame.Position = UDim2.new(0, 10, 0, 40)
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 5, 0)  -- This can be adjusted as needed
+scrollingFrame.ScrollBarThickness = 8
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.Parent = menuFrame
+
+-- Create title for menu
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 1, 0)
+title.Size = UDim2.new(1, 0, 0, 30)
 title.Position = UDim2.new(0, 0, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "Bate.cc"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextScaled = true
-title.Font = Enum.Font.SourceSans
-title.Parent = topBar
+title.Text = "Vamp"
+title.TextColor3 = Color3.new(1, 0, 0)
+title.TextSize = 24
+title.Font = Enum.Font.GrenzeGotisch
+title.Parent = menuFrame
 
-local buttonFrame = Instance.new("Frame")
-buttonFrame.Size = UDim2.new(0, 170, 0, 40)
-buttonFrame.Position = UDim2.new(0, 0, 0, 30)
-buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-buttonFrame.Parent = mainFrame
+-- Function to create a button
+local function createButton(name, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.8, 0, 0, 50)
+    button.Position = UDim2.new(0.1, 0, 0, position)
+    button.BackgroundTransparency = 0.5
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.TextSize = 20
+    button.Font = Enum.Font.SourceSans
+    button.Parent = scrollingFrame
 
--- Add a UIStroke to the button background frame
-local buttonFrameStroke = Instance.new("UIStroke")
-buttonFrameStroke.Color = Color3.fromRGB(0, 0, 255)
-buttonFrameStroke.Thickness = 2
-buttonFrameStroke.Parent = buttonFrame
-
--- Add the button to the button background frame
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(1, 0, 1, 0)
-button.Position = UDim2.new(0, 0, 0, 0)
-button.BackgroundTransparency = 1
-button.Text = "START"
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.TextScaled = true
-button.Font = Enum.Font.SourceSansBold
-button.Parent = buttonFrame
-
--- Local variables
-local player = game.Players.LocalPlayer
-local camera = game.Workspace.CurrentCamera
-local runService = game:GetService("RunService")
-local userInputService = game:GetService("UserInputService")
-
-local aimSpeed = 0.1 -- Adjust this value for responsiveness
-local isAimAssistEnabled = false
-local predictionFactor = 10 -- Adjust this value for prediction accuracy
-local currentTarget = nil
-local smoothingFactor = 0.005 -- Adjust this value for smoother camera movement
-
-local function predictTargetPosition(target, deltaTime)
-    local targetPosition = target.UpperTorso.Position
-    local targetVelocity = target:FindFirstChild("Humanoid") and target.HumanoidRootPart.Velocity or Vector3.new()
-
-    local predictedPosition = targetPosition + targetVelocity * predictionFactor * deltaTime
-    return predictedPosition
+    button.MouseButton1Click:Connect(callback)
 end
 
-local function aimAtTarget()
-    if currentTarget and currentTarget.Parent then
-        local predictedPosition = predictTargetPosition(currentTarget, runService.RenderStepped:Wait())
-        local lookVector = (predictedPosition - camera.CFrame.Position).Unit
+-- Function to create a toggle
+local function createToggle(name, position, callback)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Size = UDim2.new(0.8, 0, 0, 30)
+    toggleFrame.Position = UDim2.new(0.1, 0, 0, position)
+    toggleFrame.BackgroundTransparency = 1
+    toggleFrame.Parent = scrollingFrame
 
-        -- Smooth the camera movement
-        local smoothedLookVector = (1 - smoothingFactor) * lookVector + smoothingFactor * (camera.CFrame.LookVector)
+    local toggleLabel = Instance.new("TextLabel")
+    toggleLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    toggleLabel.Position = UDim2.new(0, 0, 0, 0)
+    toggleLabel.BackgroundTransparency = 1
+    toggleLabel.Text = name
+    toggleLabel.TextColor3 = Color3.new(1, 1, 1)
+    toggleLabel.TextSize = 18
+    toggleLabel.Font = Enum.Font.SourceSans
+    toggleLabel.Parent = toggleFrame
 
-        local newCFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + aimSpeed * smoothedLookVector)
-        camera.CFrame = newCFrame
-    else
-        currentTarget = nil
-        isAimAssistEnabled = false
-    end
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(0.3, 0, 0.8, 0)
+    toggleButton.Position = UDim2.new(0.7, 0, 0.1, 0)
+    toggleButton.BackgroundTransparency = 0.5
+    toggleButton.BackgroundColor3 = Color3.new(1, 0, 0)
+    toggleButton.Text = "OFF"
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.TextSize = 16
+    toggleButton.Font = Enum.Font.SourceSans
+    toggleButton.Parent = toggleFrame
+
+    toggleButton.MouseButton1Click:Connect(function()
+        toggleButton.Text = toggleButton.Text == "OFF" and "ON" or "OFF"
+        callback(toggleButton.Text == "ON")
+    end)
 end
 
-local function findClosestPlayerToCenter()
-    local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    local closestPlayer = nil
-    local shortestDistance = math.huge
+-- Function to create a textbox
+local function createTextbox(name, position, callback)
+    local textBoxFrame = Instance.new("Frame")
+    textBoxFrame.Size = UDim2.new(0.8, 0, 0, 30)
+    textBoxFrame.Position = UDim2.new(0.1, 0, 0, position)
+    textBoxFrame.BackgroundTransparency = 1
+    textBoxFrame.Parent = scrollingFrame
 
-    for _, object in pairs(game.Players:GetPlayers()) do
-        if object ~= player and object.Character and object.Character:FindFirstChild("Humanoid") and object.Character:FindFirstChild("UpperTorso") then
-            local targetScreenPos, onScreen = camera:WorldToScreenPoint(object.Character.UpperTorso.Position)
+    local textBoxLabel = Instance.new("TextLabel")
+    textBoxLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    textBoxLabel.Position = UDim2.new(0, 0, 0, 0)
+    textBoxLabel.BackgroundTransparency = 1
+    textBoxLabel.Text = name
+    textBoxLabel.TextColor3 = Color3.new(1, 1, 1)
+    textBoxLabel.TextSize = 18
+    textBoxLabel.Font = Enum.Font.SourceSans
+    textBoxLabel.Parent = textBoxFrame
 
-            if onScreen then
-                local distance = (Vector2.new(targetScreenPos.X, targetScreenPos.Y) - screenCenter).Magnitude
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.4, 0, 1, 0)
+    textBox.Position = UDim2.new(0.6, 5, 0, 0)
+    textBox.BackgroundTransparency = 0.5
+    textBox.BackgroundColor3 = Color3.new(1, 0, 0)
+    textBox.Text = ""
+    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.TextSize = 16
+    textBox.Font = Enum.Font.SourceSans
+    textBox.Parent = textBoxFrame
 
-                if distance < shortestDistance then
-                    closestPlayer = object.Character
-                    shortestDistance = distance
-                end
-            end
-        end
-    end
-
-    return closestPlayer
-end
-
-local function onButtonClick()
-    isAimAssistEnabled = not isAimAssistEnabled
-    if isAimAssistEnabled then
-        button.Text = "On"
-        currentTarget = findClosestPlayerToCenter()
-    else
-        button.Text = "Off"
-        currentTarget = nil
-    end
-    print("Aim Assist Toggled:", isAimAssistEnabled)
-end
-
-button.MouseButton1Click:Connect(onButtonClick)
-
-local function onCharacterAdded(character)
-    character:WaitForChild("Humanoid").Died:Connect(function()
-        if currentTarget == character then
-            currentTarget = nil
+    textBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textBox.Text)
         end
     end)
 end
 
-player.CharacterAdded:Connect(onCharacterAdded)
-
-runService.RenderStepped:Connect(function(deltaTime)
-    if isAimAssistEnabled then
-        aimAtTarget()
-    end
+-- Show/hide menu on button click
+draggableButton.MouseButton1Click:Connect(function()
+    menuFrame.Visible = not menuFrame.Visible
 end)
+
+-- Function to handle button click
+local function onButtonClick()
+    print("Button clicked!")
+end
+
+-- Function to handle toggle change
+local function onToggleChange(isOn)
+    print("Toggle state:", isOn)
+end
+
+-- Function to handle text entry
+local function onTextEntry(text)
+    print("Entered text:", text)
+end
+
+-- Create a button
+createButton("Camlock", 40, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Blazing%20lua"))()
+end)
+-- Create a toggle
+createToggle("Tracer", 100, function()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.gg%20world"))()
+end)  
+
+-- Create a textbox
+createTextbox("Prediction", 160, onTextEntry)
+
+-- Example of creating additional buttons with specific positions
+createButton("Silent aim", 220, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.gg%20world"))()
+end)
+
+createButton("aimlock", 280, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.gg%20aimlock"))()
+end)
+
+createButton("Stretched Screen", 340, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/noGlxcka/whitelist-Glxck/main/Wl"))()
+end)
+
+createButton("Anti lock", 400, function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Blzon"))()
+end)
+
+createButton("Visual/esp", 460, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.ggesp"))()
+ end)
