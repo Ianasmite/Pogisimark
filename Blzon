@@ -1,31 +1,11 @@
--- List of whitelisted player names
-local whitelist = {
-["mustafa98910"] = true,
-["jherus0023"] = true,
-}
+getgenv().Sky = true 
+getgenv().SkyAmount = 1600
 
--- Function to check if a player is whitelisted
-local function isWhitelisted(player)
-    return whitelist[player.Name] == true
-end
-
--- Function to handle player joining
-game.Players.PlayerAdded:Connect(function(player)
-    if not isWhitelisted(player) then
-        player:Kick("You are not whitelisted please buy the script!")
-    else
-        print(player.Name .. " has joined the game.")
-        -- Activate loadstring for whitelisted players
-
-    end
+game:GetService("RunService").heartbeat:Connect(function()
+    if getgenv().Sky ~= false then 
+    local vel = game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity
+    game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0,      getgenv().SkyAmount,0) 
+    game:GetService("RunService").RenderStepped:Wait()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = vel
+    end 
 end)
-
--- Check existing players
-for _, player in ipairs(game.Players:GetPlayers()) do
-    if not isWhitelisted(player) then
-        player:Kick("You are not whitelisted please buy the script!")
-    else
-        -- Activate loadstring for  players
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Mada "))()
-    end
-end
