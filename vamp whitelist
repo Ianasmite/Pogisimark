@@ -1,102 +1,191 @@
--- Made by owner lyrical
-local Enabled = true
-local Prediction = 0.1398
-local Notifications = true
-local AimPart = "HumanoidRootPart"
+-- Creating the ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Vamp"
+screenGui.Parent = game.CoreGui
 
+-- Creating the draggable button
+local draggableButton = Instance.new("TextButton")
+draggableButton.Size = UDim2.new(0, 50, 0, 50)  -- Size of the draggable button
+draggableButton.Position = UDim2.new(1, -70, 0, 20)  -- Positioning it at the top right corner
+draggableButton.BackgroundTransparency = 0.5  -- Transparent background at 50% opacity
+draggableButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+draggableButton.BorderSizePixel = 2  -- Adding black border
+draggableButton.BorderColor3 = Color3.fromRGB(0, 0, 0)  -- Black border color
+draggableButton.Text = "V"
+draggableButton.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red text color
+draggableButton.Font = Enum.Font.GrenzeGotisch  -- GrenzeGotisch font
+draggableButton.TextSize = 24
+draggableButton.Parent = screenGui
 
-local Tool = Instance.new("Tool")
-Tool.RequiresHandle = false
-Tool.Name = "Aimassist"
+-- Adding UICorner to draggableButton
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 15)
+uiCorner.Parent = draggableButton
 
+-- Create menu frame
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 300, 0, 300)
+menuFrame.Position = UDim2.new(1, -300, 0, 20)
+menuFrame.BackgroundTransparency = 0.8
+menuFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+menuFrame.BorderSizePixel = 2  -- Adding black border
+menuFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)  -- Red border color
+menuFrame.Visible = false
+menuFrame.Parent = screenGui  -- Parent to screenGui instead of draggableButton
 
-local Camera = game:GetService("Workspace").CurrentCamera
-local Mouse = game.Players.LocalPlayer:GetMouse()
-local Plr
+-- Adding UICorner to menuFrame
+local menuUICorner = Instance.new("UICorner")
+menuUICorner.CornerRadius = UDim.new(0, 15)
+menuUICorner.Parent = menuFrame
 
-local Part = Instance.new("Part", game.Workspace)
+-- Creating the ScrollingFrame
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, -20, 1, -50)
+scrollingFrame.Position = UDim2.new(0, 10, 0, 40)
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 5, 0)  -- This can be adjusted as needed
+scrollingFrame.ScrollBarThickness = 8
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.Parent = menuFrame
 
-Part.Anchored = true
-Part.CanCollide = false
-Part.Color = Color3.fromRGB(0,0,255)
-Part.Material = Enum.Material.Neon
-Part.Size = Vector3.new(0.93, 0.93, 0.93)
-Part.Shape = Enum.PartType.Block
+-- Create title for menu
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Vamp"
+title.TextColor3 = Color3.new(1, 0, 0)
+title.TextSize = 24
+title.Font = Enum.Font.GrenzeGotisch
+title.Parent = menuFrame
 
-function FindClosestPlayer()
-    local closestPlayer
-    local shortestDistance = math.huge
+-- Function to create a button
+local function createButton(name, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.8, 0, 0, 50)
+    button.Position = UDim2.new(0.1, 0, 0, position)
+    button.BackgroundTransparency = 0.5
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.TextSize = 20
+    button.Font = Enum.Font.SourceSans
+    button.Parent = scrollingFrame
 
-    for i, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and
-            v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") then
-            local pos = Camera:WorldToViewportPoint(v.Character.PrimaryPart.Position)
-            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
-            if magnitude < shortestDistance then
-                closestPlayer = v
-                shortestDistance = magnitude
-            end
-        end
-    end
-    return closestPlayer
+    button.MouseButton1Click:Connect(callback)
 end
 
-Tool.Activated:Connect(function()
+-- Function to create a toggle
+local function createToggle(name, position, callback)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Size = UDim2.new(0.8, 0, 0, 30)
+    toggleFrame.Position = UDim2.new(0.1, 0, 0, position)
+    toggleFrame.BackgroundTransparency = 1
+    toggleFrame.Parent = scrollingFrame
 
-    if Enabled == true then
-        Enabled = false
-        if Notifications == true then
+    local toggleLabel = Instance.new("TextLabel")
+    toggleLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    toggleLabel.Position = UDim2.new(0, 0, 0, 0)
+    toggleLabel.BackgroundTransparency = 1
+    toggleLabel.Text = name
+    toggleLabel.TextColor3 = Color3.new(1, 1, 1)
+    toggleLabel.TextSize = 18
+    toggleLabel.Font = Enum.Font.SourceSans
+    toggleLabel.Parent = toggleFrame
 
-            Plr = FindClosestPlayer()
-            TargetPlayer = tostring(Plr)
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "bate.cc",
-                Text = ""
-            })
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(0.3, 0, 0.8, 0)
+    toggleButton.Position = UDim2.new(0.7, 0, 0.1, 0)
+    toggleButton.BackgroundTransparency = 0.5
+    toggleButton.BackgroundColor3 = Color3.new(1, 0, 0)
+    toggleButton.Text = "OFF"
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.TextSize = 16
+    toggleButton.Font = Enum.Font.SourceSans
+    toggleButton.Parent = toggleFrame
+
+    toggleButton.MouseButton1Click:Connect(function()
+        toggleButton.Text = toggleButton.Text == "OFF" and "ON" or "OFF"
+        callback(toggleButton.Text == "ON")
+    end)
+end
+
+-- Function to create a textbox
+local function createTextbox(name, position, callback)
+    local textBoxFrame = Instance.new("Frame")
+    textBoxFrame.Size = UDim2.new(0.8, 0, 0, 30)
+    textBoxFrame.Position = UDim2.new(0.1, 0, 0, position)
+    textBoxFrame.BackgroundTransparency = 1
+    textBoxFrame.Parent = scrollingFrame
+
+    local textBoxLabel = Instance.new("TextLabel")
+    textBoxLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    textBoxLabel.Position = UDim2.new(0, 0, 0, 0)
+    textBoxLabel.BackgroundTransparency = 1
+    textBoxLabel.Text = name
+    textBoxLabel.TextColor3 = Color3.new(1, 1, 1)
+    textBoxLabel.TextSize = 18
+    textBoxLabel.Font = Enum.Font.SourceSans
+    textBoxLabel.Parent = textBoxFrame
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.4, 0, 1, 0)
+    textBox.Position = UDim2.new(0.6, 5, 0, 0)
+    textBox.BackgroundTransparency = 0.5
+    textBox.BackgroundColor3 = Color3.new(1, 0, 0)
+    textBox.Text = ""
+    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.TextSize = 16
+    textBox.Font = Enum.Font.SourceSans
+    textBox.Parent = textBoxFrame
+
+    textBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textBox.Text)
         end
+    end)
+end
 
-    else
-        Plr = FindClosestPlayer()
-        TargetPlayer = tostring(Plr)
-
-        Enabled = true
-
-        if Notifications == true then
-
-            Plr = FindClosestPlayer()
-            TargetPlayer = tostring(Plr)
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "Bate.cc real op",
-                Text = "" .. tostring(TargetPlayer)
-            })
-        end
-    end
+-- Show/hide menu on button click
+draggableButton.MouseButton1Click:Connect(function()
+    menuFrame.Visible = not menuFrame.Visible
 end)
 
-game:GetService("RunService").Stepped:Connect(function()
-    if Enabled == true then
+-- Function to handle button click
+local function onButtonClick()
+    print("Button clicked!")
+end
 
-        Part.Position = game.Players[TargetPlayer].Character.HumanoidRootPart.Position
-    else
-        Part.CFrame = CFrame.new(0, -9999, 0)
+-- Function to handle toggle change
+local function onToggleChange(isOn)
+    print("Toggle state:", isOn)
+end
 
-    end
+-- Function to handle text entry
+local function onTextEntry(text)
+    print("Entered text:", text)
+end
+
+-- Create a button
+createButton("Silent aim", 40, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.gg%20world"))()
+end)
+-- Create a toggle
+createToggle("Tracer", 100, function()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.gg%20world"))()
+end)  
+
+-- Create a textbox
+createTextbox("Example Textbox", 160, onTextEntry)
+
+-- Example of creating additional buttons with specific positions
+createButton("aim assist", 220, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Blazing%20lua"))()
 end)
 
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt, false)
-mt.__namecall = newcclosure(function(...)
-    local args = { ... }
-
-    if Enabled and getnamecallmethod() == "FireServer" and args[2] == "UpdateMousePos" then
-        args[3] = game.Players[TargetPlayer].Character[AimPart].Position +
-
-            (game.Players[TargetPlayer].Character[AimPart].Velocity * Prediction)
-
-        return old(unpack(args))
-    end
-    return old(...)
+createButton("Visual/esp", 280, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ianasmite/Pogisimark/main/Vamp.ggesp"))()
 end)
 
-Tool.Parent = game.Players.LocalPlayer.Backpack
+createButton("Stretched Screen", 340, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/noGlxcka/whitelist-Glxck/main/Wl"))()
+end)
